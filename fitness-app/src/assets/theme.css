@@ -1,0 +1,89 @@
+/* Global body styles */
+body {
+  background-color: #000000; /* black background */
+  color: #ffffff; /* white text */
+  background-image: none !important;
+}
+
+/* Override container backgrounds */
+.log-date-group {
+  background-color: #1a1a1a; /* dark gray */
+  border-color: #f97316; /* orange border */
+}
+
+.log-item {
+  background-color: #121212; /* very dark gray */
+  box-shadow: 0 1px 3px rgba(249, 115, 22, 0.5); /* orange shadow */
+}
+
+.log-item:hover {
+  box-shadow: 0 4px 6px rgba(249, 115, 22, 0.7);
+}
+
+/* Text colors */
+.log-food-name {
+  color: #f97316; /* orange */
+}
+
+.log-calories {
+  color: #d1d5db; /* light gray */
+}
+
+/* Buttons */
+.btn-blue {
+  background-color: #f97316; /* orange */
+  color: white;
+}
+
+.btn-blue:hover {
+  background-color: #c75c0a; 
+  color: white;/* darker orange */
+}
+
+.btn-purple {
+  background-color: #d97706; /* darker orange */
+  color: white;
+}
+
+.btn-purple:hover {
+  background-color: #b45309;
+}
+
+/* Headings and links */
+h1, h2, h3, h4, h5, h6, a {
+  color: #f97316; /* orange */
+}
+a:hover{
+  color: #c75c0a; /* darker orange */
+  border-bottom: 2px solid #c75c0a;
+}
+
+/* Borders */
+input, select, textarea {
+  border-color: #f97316;
+  background-color: #1a1a1a;
+  color: white;
+}
+
+/* Scrollbar (optional) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #f97316;
+  border-radius: 10px;
+  border: 2px solid #000000;
+}
+
+/* Fix text color for workout data */
+.workout-list, .workout-list li, .workout-list span {
+  color: #111827 !important; /* dark text for workout data */
+  background-color: white !important;
+  padding: 0.5rem !important;
+  border-radius: 0.375rem !important;
+}
