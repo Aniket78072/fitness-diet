@@ -4,8 +4,8 @@ import AISuggestion from "../models/AISuggestion.js";
 let client;
 
 const getClient = () => {
-  console.log("DEEPSEEK_API_KEY:", process.env.DEEPSEEK_API_KEY ? "Set" : "Not set");
-  const apiKey = process.env.DEEPSEEK_API_KEY;
+  console.log("DEEPSEEK_API_KEY:", process.env.OPENROUTER_API_KEY ? "Set" : "Not set");
+  const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
     throw new Error("DEEPSEEK_API_KEY environment variable is not set. Please add it to your .env file.");
   }

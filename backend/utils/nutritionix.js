@@ -1,15 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const GOOGLE_AI_API_KEY = process.env.GOOGLE_AI_API_KEY || "AIzaSyA53MkL76L06DNi24Ug5zCsxSR7VAsuauY";
-
-console.log("GOOGLE_AI_API_KEY:", GOOGLE_AI_API_KEY ? "Set" : "Not set");
-
-if (!GOOGLE_AI_API_KEY) {
-  throw new Error("Google AI API key is not set. Please set GOOGLE_AI_API_KEY in environment variables.");
-}
-
-const genAI = new GoogleGenerativeAI(GOOGLE_AI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// Removed Gemini API integration - now using only mock data for nutrition information
 
 // Mock food data for common items when API is unavailable
 const mockFoodData = {
@@ -66,27 +55,7 @@ const mockFoodData = {
 
 export const getFoodData = async (query) => {
   try {
-    const prompt = `Provide accurate nutritional information for the specified quantity of "${query}" based on standard USDA or reliable nutritional databases. If a quantity is specified (like 100g, 1 cup, 2 pieces), use that exact amount. Otherwise use a typical serving size. Return only the JSON object in this exact format, no additional text: {"food_name": "${query}", "nf_calories": number, "nf_protein": number, "nf_total_fat": number, "nf_total_carbohydrate": number}`;
-
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text().trim();
-
-    // Remove any markdown formatting if present
-    const cleanedText = text.replace(/```json\n?|\n?```/g, '');
-
-    const data = JSON.parse(cleanedText);
-
-    // Validate the response has required fields
-    if (!data.food_name || typeof data.nf_calories !== 'number' || typeof data.nf_protein !== 'number' || typeof data.nf_total_fat !== 'number' || typeof data.nf_total_carbohydrate !== 'number') {
-      throw new Error("Invalid response format from Gemini API");
-    }
-
-    return { foods: [data] };
-  } catch (error) {
-    console.error("Gemini API Error:", error.message);
-
-    // Fallback to mock data for common foods
+    // Using only mock data for nutrition information (Gemini API removed)
     const queryLower = query.toLowerCase();
     for (const [key, mockData] of Object.entries(mockFoodData)) {
       if (queryLower.includes(key)) {
@@ -101,6 +70,17 @@ export const getFoodData = async (query) => {
       foods: [{
         food_name: query,
         nf_calories: 100, // Default calories
+        nf_protein: 5,
+        nf_total_fat: 2,
+        nf_total_carbohydrate: 15
+      }]
+    };
+  } catch (error) {
+    console.error("Food data error:", error.message);
+    return {
+      foods: [{
+        food_name: query,
+        nf_calories: 100,
         nf_protein: 5,
         nf_total_fat: 2,
         nf_total_carbohydrate: 15

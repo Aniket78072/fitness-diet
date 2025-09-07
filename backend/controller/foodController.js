@@ -2,7 +2,7 @@ import FoodLog from "../models/FoodLog.js";
 import DailyFoodSummary from "../models/DailyFoodSummary.js";
 import User from "../models/User.js";
 import { getFoodData } from "../utils/nutritionix.js";
-import { analyzeFoodImage } from "../utils/openai.js";
+// Removed analyzeFoodImage import - Gemini functionality removed
 
 export const logFoodByText = async (req, res) => {
   try {
@@ -30,30 +30,7 @@ export const logFoodByText = async (req, res) => {
   }
 };
 
-export const logFoodByImage = async (req, res) => {
-  try {
-    const foodName = await analyzeFoodImage(req.file.path);
-    const data = await getFoodData(foodName);
-    const food = data.foods[0];
-
-    const log = await FoodLog.create({
-      user: req.user.id,
-      foodName: food.food_name,
-      calories: food.nf_calories,
-      protein: food.nf_protein,
-      fat: food.nf_total_fat,
-      carbs: food.nf_total_carbohydrate,
-      imageUrl: req.file.path,
-    });
-
-    // Update daily food summary after logging food
-    await updateDailyFoodSummary(req.user.id);
-
-    res.json(log);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
+// Removed logFoodByImage function - Gemini image analysis functionality removed
 
 export const getFoodLogs = async (req, res) => {
   try {

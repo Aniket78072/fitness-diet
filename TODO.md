@@ -1,3 +1,7 @@
 - [x] Add _redirects file to fitness-app/public for Netlify SPA routing fallback
 - [x] Verify backend does not serve static files (only API routes)
 - [x] Confirm no backend changes needed for SPA fallback
+- [x] Remove Gemini API integration from backend/utils/openai.js
+- [x] Remove Gemini API integration from backend/utils/nutritionix.js
+- [x] Remove logFoodByImage function from backend/controller/foodController.js
+- [x] Remove image upload route from backend/routes/foodRoutes.js

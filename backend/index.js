@@ -22,6 +22,11 @@ connectDB();
 const app = express();
 
 app.use(cors());
+app.use(cors({
+  origin: "https://fitness-app7.netlify.app/", // your Netlify frontend URL
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 
 // Add middleware to log requests for debugging
