@@ -4,21 +4,101 @@ import User from "../models/User.js";
 import { getFoodData } from "../utils/nutritionix.js";
 // Removed analyzeFoodImage import - Gemini functionality removed
 
+// Parse quantity and food name from user input
+const parseFoodQuery = (query) => {
+  const lowerQuery = query.toLowerCase().trim();
+
+  // Patterns to match quantities:
+  // - "250g chicken breast" -> quantity: 250, unit: "g", food: "chicken breast"
+  // - "2 eggs" -> quantity: 2, unit: "eggs", food: "egg"
+  // - "1 apple" -> quantity: 1, unit: "apple", food: "apple"
+  // - "chicken breast" -> quantity: 100, unit: "g", food: "chicken breast" (default)
+
+  // Match patterns like "250g", "2", "1.5kg", "3 eggs", etc.
+  const quantityPatterns = [
+    // Weight patterns: 250g, 1.5kg, 500ml, etc.
+    /(\d+(?:\.\d+)?)\s*(g|kg|ml|l|oz|lb)/i,
+    // Count patterns: 2 eggs, 3 apples, etc.
+    /(\d+(?:\.\d+)?)\s*(eggs?|apples?|bananas?|pieces?|servings?)/i,
+    // Simple numbers: 2, 1.5, etc.
+    /^(\d+(?:\.\d+)?)\s+/,
+  ];
+
+  for (const pattern of quantityPatterns) {
+    const match = lowerQuery.match(pattern);
+    if (match) {
+      const quantity = parseFloat(match[1]);
+      const unit = match[2] || '';
+      const foodName = lowerQuery.replace(match[0], '').trim();
+
+      // Convert units to grams for consistency
+      let normalizedQuantity = quantity;
+      if (unit === 'kg') {
+        normalizedQuantity = quantity * 1000; // kg to g
+      } else if (unit === 'oz') {
+        normalizedQuantity = quantity * 28.35; // oz to g
+      } else if (unit === 'lb') {
+        normalizedQuantity = quantity * 453.59; // lb to g
+      } else if (unit === 'ml' || unit === 'l') {
+        // For liquids, assume density ~1g/ml, so ml/l ≈ g
+        normalizedQuantity = unit === 'l' ? quantity * 1000 : quantity;
+      } else if (unit.match(/eggs?|apples?|bananas?|pieces?|servings?/i)) {
+        // For countable items, keep as count but assume base is 1 unit
+        normalizedQuantity = quantity;
+      } else if (!unit || unit === 'g') {
+        // Already in grams or no unit specified
+        normalizedQuantity = quantity;
+      }
+
+      return {
+        quantity: normalizedQuantity,
+        foodName: foodName || query, // fallback to original query
+        originalQuery: query
+      };
+    }
+  }
+
+  // No quantity found, assume default 100g
+  return {
+    quantity: 100,
+    foodName: query,
+    originalQuery: query
+  };
+};
+
 export const logFoodByText = async (req, res) => {
   try {
     console.log("logFoodByText called with query:", req.body.query);
     const { query } = req.body;
-    const data = await getFoodData(query);
+
+    // Parse quantity and food name from query
+    const { quantity, foodName } = parseFoodQuery(query);
+    console.log("Parsed quantity:", quantity, "foodName:", foodName);
+
+    // Get nutritional data for the base food item
+    const data = await getFoodData(foodName);
     console.log("Food data received:", data);
     const food = data.foods[0];
 
+    // Calculate nutritional values based on quantity
+    const multiplier = quantity / 100; // Assuming base data is for 100g or 1 unit
+    const adjustedCalories = Math.round(food.nf_calories * multiplier);
+    const adjustedProtein = Math.round(food.nf_protein * multiplier * 10) / 10; // Round to 1 decimal
+    const adjustedFat = Math.round(food.nf_total_fat * multiplier * 10) / 10;
+    const adjustedCarbs = Math.round(food.nf_total_carbohydrate * multiplier * 10) / 10;
+
+    console.log("Adjusted nutritional values:", {
+      original: { calories: food.nf_calories, protein: food.nf_protein },
+      adjusted: { calories: adjustedCalories, protein: adjustedProtein }
+    });
+
     const log = await FoodLog.create({
       user: req.user.id,
-      foodName: food.food_name,
-      calories: food.nf_calories,
-      protein: food.nf_protein,
-      fat: food.nf_total_fat,
-      carbs: food.nf_total_carbohydrate,
+      foodName: query, // Store the original query with quantity
+      calories: adjustedCalories,
+      protein: adjustedProtein,
+      fat: adjustedFat,
+      carbs: adjustedCarbs,
     });
 
     // Update daily food summary after logging food
