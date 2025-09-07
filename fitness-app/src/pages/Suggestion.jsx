@@ -19,7 +19,7 @@ export default function Suggestions() {
       const dailyCalories = res.data.dailyCalories;
 
       // request new AI suggestion
-      const aiRes = await api.post("/ai/suggest", { dailyCalories, preference, customPrompt });
+      const aiRes = await api.post("/ai/suggestions", { dailyCalories, preference, customPrompt });
 
       setSuggestion(aiRes.data.suggestion);
       fetchHistory(); // refresh history

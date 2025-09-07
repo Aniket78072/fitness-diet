@@ -14,7 +14,7 @@ api.interceptors.request.use(
     // List of public endpoints that don't require authentication
     const publicEndpoints = [
       '/ai/calculate-calories',
-      '/ai/suggestion'
+      '/ai/suggestions'
     ];
 
     // Check if the current request is to a public endpoint
