@@ -43,7 +43,7 @@ function AISuggestion() {
     setLoading(true);
     try {
       const res = await axios.post(
-        "https://your-backend.onrender.com/api/ai/suggestions",
+        "https://fitness-diet-backend-8bsp.onrender.com/api/ai/suggestions",
         { prompt }
       );
       // OpenRouter response structure → choices[0].message.content
