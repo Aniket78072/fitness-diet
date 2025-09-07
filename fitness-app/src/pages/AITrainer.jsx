@@ -242,7 +242,7 @@ export default function AITrainer() {
 
       {/* Exercise Options */}
       {exerciseOptions.length > 0 && (
-        <div className="bg-white p-4 rounded-lg shadow">
+        <div className="text-white p-4 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Available Exercises</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {exerciseOptions.map((exercise, index) => (
@@ -267,7 +267,7 @@ export default function AITrainer() {
 
       {/* Selected Exercise Details */}
       {selectedExercise && (
-        <div className="bg-green-50 p-4 rounded-lg shadow">
+        <div className="bg-white text-black p-4 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Selected Exercise Details</h3>
           <div className="space-y-2">
             <p><strong>Name:</strong> {selectedExercise.name}</p>
