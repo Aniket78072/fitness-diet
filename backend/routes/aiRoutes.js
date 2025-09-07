@@ -10,6 +10,6 @@ router.get("/ai/history", protect, getHistory);
 
         // Public routes (no authentication required)
 router.post("/calculate-calories", calculateCaloriesBurned);
-    router.post("/suggest", getAISuggestions);
+    // router.post("/suggest", getAISuggestions);
 
 export default router;
