@@ -1,13 +1,14 @@
 import axios from "axios";
+import OpenAI from "openai";
 import AISuggestion from "../models/AISuggestion.js";
 
 let client;
 
 const getClient = () => {
-  console.log("DEEPSEEK_API_KEY:", process.env.OPENROUTER_API_KEY ? "Set" : "Not set");
+  console.log("OPENROUTER_API_KEY:", process.env.OPENROUTER_API_KEY ? "Set" : "Not set");
   const apiKey = process.env.OPENROUTER_API_KEY;
   if (!apiKey) {
-    throw new Error("DEEPSEEK_API_KEY environment variable is not set. Please add it to your .env file.");
+    throw new Error("OPENROUTER_API_KEY environment variable is not set. Please add it to your .env file.");
   }
   if (!client) {
     client = new OpenAI({
@@ -54,7 +55,7 @@ export const getAISuggestions = async (req, res) => {
       },
     });
 
-    const suggestion = response.choices[0].message.content;
+    const suggestion = response.data.choices[0].message.content;
 
     console.log("DeepSeek Response received");
     console.log("Suggestion generated:", suggestion.substring(0, 100) + "...");
@@ -90,15 +91,26 @@ export const calculateCaloriesBurned = async (req, res) => {
 
     const prompt = `Calculate the estimated calories burned for doing ${reps} repetitions of ${exercise}. Provide only the number in kcal.`;
 
-    const response = await getClient().chat.completions.create({
-      model: "deepseek/deepseek-r1:free",
-      messages: [
-        { role: "system", content: "You are a fitness expert." },
-        { role: "user", content: prompt },
-      ],
-    });
+    const response = await axios.post(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
+        model: "deepseek/deepseek-r1:free",
+        messages: [
+          { role: "system", content: "You are a fitness expert." },
+          { role: "user", content: prompt },
+        ],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://fitness-app7.netlify.app/",
+          "X-Title": "AI Suggestion Feature",
+        },
+      }
+    );
 
-    const caloriesText = response.choices[0].message.content.trim();
+    const caloriesText = response.data.choices[0].message.content.trim();
     const calories = parseFloat(caloriesText.match(/[\d\.]+/)[0]);
 
     if (isNaN(calories)) {
