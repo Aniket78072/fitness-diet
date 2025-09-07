@@ -141,7 +141,7 @@ export default function WorkoutTracker() {
 
       {/* Exercise Data Display */}
       {exerciseData && (
-        <div className="max-w-md bg-blue-50 p-4 rounded-lg shadow">
+        <div className="max-w-md bg-blue-50 p-4 rounded-lg shadow text-black">
           <h3 className="text-lg font-semibold mb-2">Exercise Information</h3>
           <div className="space-y-2">
             <p><strong>Name:</strong> {exerciseData.name}</p>
