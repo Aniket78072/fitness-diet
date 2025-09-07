@@ -5,3 +5,7 @@
 - [x] Remove Gemini API integration from backend/utils/nutritionix.js
 - [x] Remove logFoodByImage function from backend/controller/foodController.js
 - [x] Remove image upload route from backend/routes/foodRoutes.js
+- [x] Update CORS configuration to allow correct frontend origins
+- [x] Test backend login endpoint accessibility
+- [x] Test CORS preflight requests
+- [x] Verify backend responds correctly to authentication requests

@@ -21,9 +21,13 @@ connectDB();
 
 const app = express();
 
-app.use(cors());
 app.use(cors({
-  origin: "https://fitness-app7.netlify.app/", // your Netlify frontend URL
+  origin: [
+    "https://fitness-diet-frontend-43lh.onrender.com", // Render frontend URL
+    "https://fitness-app7.netlify.app", // Netlify frontend URL (if still needed)
+    "http://localhost:3000", // Local development
+    "http://localhost:5173" // Vite dev server
+  ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
