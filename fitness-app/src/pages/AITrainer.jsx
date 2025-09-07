@@ -255,10 +255,10 @@ export default function AITrainer() {
                 }`}
                 onClick={() => selectExercise(exercise)}
               >
-                <h4 className="font-semibold">{exercise.name}</h4>
-                <p className="text-sm text-gray-600">Muscle: {exercise.muscle}</p>
-                <p className="text-sm text-gray-600">Type: {exercise.type}</p>
-                <p className="text-sm text-gray-600">Difficulty: {exercise.difficulty}</p>
+                <h4 className="font-semibold text-black">{exercise.name}</h4>
+                <p className="text-sm text-black-600">Muscle: {exercise.muscle}</p>
+                <p className="text-sm text-black-600">Type: {exercise.type}</p>
+                <p className="text-sm text-black-600">blackDifficulty: {exercise.difficulty}</p>
               </div>
             ))}
           </div>
