@@ -1,4 +1,4 @@
-import OpenAI from "openai";
+import axios from "axios";
 import AISuggestion from "../models/AISuggestion.js";
 
 let client;
@@ -31,7 +31,10 @@ export const getAISuggestions = async (req, res) => {
       preference = "veg"; // default to veg if invalid
     }
 
-    const response = await getClient().chat.completions.create({
+    // const response = await getClient().chat.completions.create({
+    const response = await axios.post(
+      "https://openrouter.ai/api/v1/chat/completions",
+      {
       model: "deepseek/deepseek-r1:free",
       messages: [
         { role: "system", content: "You are a nutrition expert." },
@@ -41,6 +44,14 @@ export const getAISuggestions = async (req, res) => {
           for a calorie goal of ${dailyCalories} kcal. Meals should be ${preference}.${customPrompt ? ` Additional requirements: ${customPrompt}` : ''}`,
         },
       ],
+    },
+    {
+      headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://fitness-app7.netlify.app/", // optional but recommended
+          "X-Title": "AI Suggestion Feature", // optional
+      },
     });
 
     const suggestion = response.choices[0].message.content;
