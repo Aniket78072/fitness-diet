@@ -25,6 +25,12 @@ export default function Suggestions() {
       fetchHistory(); // refresh history
     } catch (error) {
       console.error("Error getting suggestion:", error);
+      if (error.response?.status === 400 && error.response?.data?.error) {
+        // Show user-friendly error message for incomplete profile
+        alert(error.response.data.error);
+      } else {
+        alert("Failed to get AI suggestion. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -40,37 +46,53 @@ export default function Suggestions() {
   }, []);
 
   return (
-    <div className="p-6 ">
-      <h2 className="text-xl mt-20">AI Suggestions</h2>
+    <div className="p-4 md:p-6 max-w-4xl mx-auto">
+      <h2 className="text-xl font-bold mt-20">AI Suggestions</h2>
 
-      <div className="flex gap-2 my-2">
-        <label>
-          <input type="radio" value="veg" checked={preference === "veg"} onChange={() => setPreference("veg")} />
-          Veg
-        </label>
-        <label>
-          <input type="radio" value="non-veg" checked={preference === "non-veg"} onChange={() => setPreference("non-veg")} />
-          Non-Veg
-        </label>
+      <div className="bg-white p-4 rounded-lg shadow-sm border mt-4">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 mb-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <label className="flex items-center text-black">
+              <input
+                type="radio"
+                value="veg"
+                checked={preference === "veg"}
+                onChange={() => setPreference("veg")}
+                className="mr-2"
+              />
+              <span className="text-sm">Vegetarian</span>
+            </label>
+            <label className="flex items-center text-black">
+              <input
+                type="radio"
+                value="non-veg"
+                checked={preference === "non-veg"}
+                onChange={() => setPreference("non-veg")}
+                className="mr-2"
+              />
+              <span className="text-sm">Non-Vegetarian</span>
+            </label>
+          </div>
+        </div>
+
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Enter your custom prompt (optional)"
+            value={customPrompt}
+            onChange={(e) => setCustomPrompt(e.target.value)}
+            className="border p-3 w-full rounded text-sm"
+          />
+        </div>
+
+        <button
+          className="bg-green-600 text-white px-6 py-3 rounded shadow hover:bg-green-700 transition-colors disabled:bg-gray-400 text-sm w-full sm:w-auto"
+          onClick={getSuggestion}
+          disabled={loading}
+        >
+          {loading ? "Getting Suggestion..." : "Get New Suggestion"}
+        </button>
       </div>
-
-      <div className="my-2">
-        <input
-          type="text"
-          placeholder="Enter your custom prompt"
-          value={customPrompt}
-          onChange={(e) => setCustomPrompt(e.target.value)}
-          className="border p-2 w-full rounded"
-        />
-      </div>
-
-      <button
-        className="bg-green-600 text-white p-2 disabled:bg-gray-400"
-        onClick={getSuggestion}
-        disabled={loading}
-      >
-        {loading ? "Getting Suggestion..." : "Get New Suggestion"}
-      </button>
 
       {loading && (
         <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
@@ -107,16 +129,35 @@ export default function Suggestions() {
         </div>
       )}
 
-      <h3 className="mt-6 font-bold">History</h3>
-      <ul className="mt-2 space-y-2">
-        {history.map((item) => (
-          <li key={item._id} className="border p-2 rounded">
-            <p><strong>{item.preference.toUpperCase()}</strong> ({item.dailyCalories} kcal)</p>
-            <p className="whitespace-pre-line text-sm">{item.suggestion}</p>
-            <p className="text-xs text-gray-500">Created: {new Date(item.createdAt).toLocaleString()}</p>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-6">
+        <h3 className="font-bold mb-4">Suggestion History</h3>
+        {history.length === 0 ? (
+          <p className="text-gray-500 text-center py-4">No suggestions yet.</p>
+        ) : (
+          <div className="space-y-4">
+            {history.map((item) => (
+              <div key={item._id} className="bg-white border rounded-lg shadow-sm p-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
+                  <div className="flex items-center gap-2 mb-2 sm:mb-0">
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                      item.preference === 'veg' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'
+                    }`}>
+                      {item.preference.toUpperCase()}
+                    </span>
+                    <span className="text-sm text-gray-600">{item.dailyCalories} kcal</span>
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    {new Date(item.createdAt).toLocaleDateString()} {new Date(item.createdAt).toLocaleTimeString()}
+                  </span>
+                </div>
+                <div className="bg-gray-50 rounded p-3">
+                  <p className="whitespace-pre-line text-sm text-gray-800 leading-relaxed">{item.suggestion}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

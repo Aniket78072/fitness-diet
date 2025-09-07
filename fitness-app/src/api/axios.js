@@ -10,7 +10,17 @@ api.interceptors.request.use(
     console.log("Axios request:", config.url, config.method);
     const token = localStorage.getItem("token");
     console.log("Token from localStorage:", token ? "Present" : "Not present");
-    if (token) {
+
+    // List of public endpoints that don't require authentication
+    const publicEndpoints = [
+      '/ai/calculate-calories',
+      '/ai/suggestion'
+    ];
+
+    // Check if the current request is to a public endpoint
+    const isPublicEndpoint = publicEndpoints.some(endpoint => config.url.includes(endpoint));
+
+    if (token && !isPublicEndpoint) {
       config.headers.Authorization = `Bearer ${token}`;
       console.log("Added Authorization header");
     }

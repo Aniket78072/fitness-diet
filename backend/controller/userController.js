@@ -30,6 +30,13 @@ export const login = async (req, res) => {
 export const getCalorieGoal = (req, res) => {
   const { weight, targetWeight, height, age, gender, activityLevel, goal } = req.user;
 
+  // Check if required fields are present
+  if (!weight || !height || !age || !gender || !activityLevel || !goal) {
+    return res.status(400).json({
+      error: "Please complete your profile with weight, height, age, gender, activity level, and goal to get calorie recommendations."
+    });
+  }
+
   // Use target weight if available, otherwise current weight
   const weightForBMR = targetWeight || weight;
 

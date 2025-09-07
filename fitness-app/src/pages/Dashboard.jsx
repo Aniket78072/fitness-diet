@@ -210,42 +210,42 @@ const fetchWorkouts = async () => {
 
 
   return (
-    <div className="p-6 space-y-6 max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mt-30">
+    <div className="p-4 md:p-6 space-y-6 max-w-4xl mx-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-20 md:mt-30">
         <h2 className="text-2xl font-bold">Dashboard</h2>
         <button
           onClick={refreshData}
-          className="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700"
+          className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition-colors"
         >
           Refresh Data
         </button>
       </div>
 
       {/* Calorie Goal */}
-     <div className="flex gap-8 items-center">
-  <div className="w-40 h-40">
-    <CircularProgressbar
-      value={calorieProgress}
-      text={`${Math.round(calorieProgress)}%`}
-      styles={buildStyles({
-        textColor: "#22c55e",
-        pathColor: "#22c55e",
-        trailColor: "#d1d5db",
-      })}
-    />
-  </div>
-  <div>
-    <h3 className="text-xl font-semibold">Daily Calorie Goal</h3>
-    <p>
-      Net: {netCalories} kcal (Eaten {caloriesConsumed} - Burned {caloriesBurned}) /{" "}
-      {calorieGoal} kcal
-    </p>
-  </div>
-</div>
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-center p-4 rounded-lg shadow-sm">
+        <div className="w-32 h-32 sm:w-40 sm:h-40 mx-auto sm:mx-0">
+          <CircularProgressbar
+            value={calorieProgress}
+            text={`${Math.round(calorieProgress)}%`}
+            styles={buildStyles({
+              textColor: "#22c55e",
+              pathColor: "#22c55e",
+              trailColor: "#d1d5db",
+            })}
+          />
+        </div>
+        <div className="text-center sm:text-left">
+          <h3 className="text-lg sm:text-xl font-semibold">Daily Calorie Goal</h3>
+          <p className="text-sm sm:text-base">
+            Net: {netCalories} kcal (Eaten {caloriesConsumed} - Burned {caloriesBurned}) /{" "}
+            {calorieGoal} kcal
+          </p>
+        </div>
+      </div>
 
       {/* Protein Goal */}
-      <div className="flex gap-8 items-center">
-        <div className="w-40 h-40">
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-center p-4 rounded-lg shadow-sm">
+        <div className="w-32 h-32 sm:w-40 sm:h-40 mx-auto sm:mx-0">
           <CircularProgressbar
             value={proteinProgress}
             text={`${Math.round(proteinProgress)}%`}
@@ -256,17 +256,17 @@ const fetchWorkouts = async () => {
             })}
           />
         </div>
-        <div>
-          <h3 className="text-xl font-semibold">Daily Protein Goal</h3>
-          <p>
+        <div className="text-center sm:text-left">
+          <h3 className="text-lg sm:text-xl font-semibold">Daily Protein Goal</h3>
+          <p className="text-sm sm:text-base">
             Consumed: {proteinConsumed} g / {proteinGoal} g
           </p>
         </div>
       </div>
 
       {/* Weight Goal */}
-      <div className="flex gap-8 items-center">
-        <div className="w-40 h-40">
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 items-center p-4 rounded-lg shadow-sm">
+        <div className="w-32 h-32 sm:w-40 sm:h-40 mx-auto sm:mx-0">
           <CircularProgressbar
             value={weightProgress}
             text={`${Math.round(weightProgress)}%`}
@@ -277,36 +277,39 @@ const fetchWorkouts = async () => {
             })}
           />
         </div>
-        <div>
-          <h3 className="text-xl font-semibold">Weight Goal</h3>
-          <p>
+        <div className="text-center sm:text-left w-full sm:w-auto">
+          <h3 className="text-lg sm:text-xl font-semibold">Weight Goal</h3>
+          <p className="text-sm sm:text-base mb-3">
             Current: {currentWeight} kg → Target: {targetWeight} kg
           </p>
-          <div className="mt-2 flex gap-2 items-center">
+
+          {/* Weight input fields - responsive grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
             <input
               type="number"
               placeholder="Current Weight (kg)"
               value={currentWeightInput}
               onChange={(e) => setCurrentWeightInput(e.target.value)}
-              className="px-2 py-1 border rounded w-32"
+              className="px-3 py-2 border rounded text-sm w-full"
             />
             <input
               type="number"
               placeholder="Target Weight (kg)"
               value={targetWeightInput}
               onChange={(e) => setTargetWeightInput(e.target.value)}
-              className="px-2 py-1 border rounded w-32"
+              className="px-3 py-2 border rounded text-sm w-full"
             />
             <button
               onClick={setWeightGoal}
-              className="px-4 py-1 bg-green-600 text-white rounded shadow"
+              className="px-4 py-2 bg-green-600 text-white rounded shadow hover:bg-green-700 transition-colors text-sm w-full sm:w-auto"
             >
               Set Goal
             </button>
           </div>
+
           <button
             onClick={addWeightEntry}
-            className="mt-2 px-4 py-1 bg-blue-600 text-white rounded shadow"
+            className="w-full sm:w-auto px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition-colors text-sm"
           >
             Add Weight Entry
           </button>
@@ -315,26 +318,26 @@ const fetchWorkouts = async () => {
 
       {/* Profile Setup */}
       <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold mb-2">Update Profile (for Calorie Goal Calculation)</h3>
-        <div className="grid grid-cols-2 gap-4">
+        <h3 className="text-lg font-semibold mb-4">Update Profile (for Calorie Goal Calculation)</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <input
             type="number"
             placeholder="Age"
             value={profileData.age}
             onChange={(e) => setProfileData({ ...profileData, age: e.target.value })}
-            className="px-2 py-1 border rounded"
+            className="px-3 py-2 border rounded text-sm w-full"
           />
           <input
             type="number"
             placeholder="Height (cm)"
             value={profileData.height}
             onChange={(e) => setProfileData({ ...profileData, height: e.target.value })}
-            className="px-2 py-1 border rounded"
+            className="px-3 py-2 border rounded text-sm w-full"
           />
           <select
             value={profileData.gender}
             onChange={(e) => setProfileData({ ...profileData, gender: e.target.value })}
-            className="px-2 py-1 border rounded"
+            className="px-3 py-2 border rounded text-sm w-full"
           >
             <option value="">Select Gender</option>
             <option value="male">Male</option>
@@ -343,7 +346,7 @@ const fetchWorkouts = async () => {
           <select
             value={profileData.activityLevel}
             onChange={(e) => setProfileData({ ...profileData, activityLevel: e.target.value })}
-            className="px-2 py-1 border rounded"
+            className="px-3 py-2 border rounded text-sm w-full"
           >
             <option value="">Select Activity Level</option>
             <option value="low">Low</option>
@@ -353,7 +356,7 @@ const fetchWorkouts = async () => {
           <select
             value={profileData.goal}
             onChange={(e) => setProfileData({ ...profileData, goal: e.target.value })}
-            className="px-2 py-1 border rounded"
+            className="px-3 py-2 border rounded text-sm w-full sm:col-span-2"
           >
             <option value="">Select Goal</option>
             <option value="lose">Lose Weight</option>
@@ -362,7 +365,7 @@ const fetchWorkouts = async () => {
           </select>
           <button
             onClick={updateProfile}
-            className="px-4 py-1 bg-purple-600 text-white rounded shadow"
+            className="px-4 py-2 bg-purple-600 text-white rounded shadow hover:bg-purple-700 transition-colors text-sm w-full sm:col-span-2"
           >
             Update Profile
           </button>
@@ -400,61 +403,64 @@ const fetchWorkouts = async () => {
       )}
 
       {/* Food Logs */}
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Log Food</h3>
-        <div className="flex gap-2 mb-4">
+      <div className="p-4 rounded-lg shadow-sm">
+        <h3 className="text-lg font-semibold mb-4">Log Food</h3>
+        <div className="flex flex-col sm:flex-row gap-2 mb-6">
           <input
             type="text"
             placeholder="Enter food name (e.g., '1 apple' or 'chicken breast 200g')"
             value={foodInput}
             onChange={(e) => setFoodInput(e.target.value)}
-            className="flex-1 px-3 py-2 border rounded"
+            className="flex-1 px-3 py-2 border rounded text-sm w-full"
           />
           <button
             onClick={logFood}
-            className="px-4 py-2 bg-orange-600 text-white rounded shadow"
+            className="px-4 py-2 bg-orange-600 text-white rounded shadow hover:bg-orange-700 transition-colors text-sm w-full sm:w-auto"
           >
             Log Food
           </button>
         </div>
 
-        <h3 className="text-lg font-semibold mb-2">Your Food Logs</h3>
+        <h3 className="text-lg font-semibold mb-4">Your Food Logs</h3>
         {foodLogs.length === 0 ? (
-          <p className="text-black-500">No food logged yet.</p>
+          <p className="text-gray-700 text-center py-4">No food logged yet.</p>
         ) : (
-          <ul className="space-y-2">
+          <div className="space-y-2">
             {foodLogs.map((item) => (
-              <li
+              <div
                 key={item._id}
-                className="flex justify-between border p-2 rounded bg-white shadow-sm text-black"
+                className="flex flex-col sm:flex-row justify-between border p-3 rounded bg-gray-50 shadow-sm text-black"
               >
-                <span>{item.foodName}</span>
-                <span className="text-black-700">{item.calories} kcal, {item.protein || 0} g protein</span>
-              </li>
+                <span className="font-medium text-sm sm:text-base mb-1 sm:mb-0">{item.foodName}</span>
+                <span className="text-gray-700 text-sm">{item.calories} kcal, {item.protein || 0} g protein</span>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
 
       {/* Recent Workouts */}
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Recent Workouts</h3>
+      <div className="p-4 rounded-lg shadow-sm">
+        <h3 className="text-lg font-semibold mb-4">Recent Workouts</h3>
         {workouts.length === 0 ? (
-          <p className="text-gray-500">No workouts logged yet.</p>
+          <p className="text-gray-700 text-center py-4">No workouts logged yet.</p>
         ) : (
-          <ul className="space-y-2">
+          <div className="space-y-2">
             {workouts.slice(0, 5).map((w) => (
-              <li
+              <div
                 key={w._id}
-                className="flex justify-between border p-2 rounded bg-white shadow-sm text-black"
+                className="flex flex-col sm:flex-row justify-between border p-3 rounded bg-gray-50 shadow-sm text-black"
               >
-                <span>
-                  {w.exercise} ({w.reps} reps) - {new Date(w.date).toLocaleDateString()}
+                <span className="text-sm sm:text-base mb-1 sm:mb-0">
+                  <span className="font-medium">{w.exercise}</span> ({w.reps} reps)
                 </span>
-                <span className="text-red-600">-{w.caloriesBurned} kcal</span>
-              </li>
+                <div className="flex flex-col sm:items-end">
+                  <span className="text-red-600 font-medium text-sm">-{w.caloriesBurned} kcal</span>
+                  <span className="text-xs text-gray-500">{new Date(w.date).toLocaleDateString()}</span>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>

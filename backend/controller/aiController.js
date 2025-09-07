@@ -5,7 +5,7 @@ let client;
 
 const getClient = () => {
   console.log("DEEPSEEK_API_KEY:", process.env.DEEPSEEK_API_KEY ? "Set" : "Not set");
-  const apiKey = "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"; //process.env.DEEPSEEK_API_KEY;
+  const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
     throw new Error("DEEPSEEK_API_KEY environment variable is not set. Please add it to your .env file.");
   }
@@ -13,18 +13,13 @@ const getClient = () => {
     client = new OpenAI({
       apiKey: apiKey,
       baseURL: "https://openrouter.ai/api/v1",
-       defaultHeaders: {
-    "HTTP-Referer": "http://localhost:5000",
-    "X-Title": "Fitness App AI",
-  }
     });
-    console.log("DeepSeek client initialized");
+    console.log("DeepSeek client initialized with OpenRouter");
   } else {
     console.log("DeepSeek client already initialized");
   }
   return client;
 };
-
 // Create new suggestion
 export const getAISuggestions = async (req, res) => {
   try {
@@ -36,19 +31,17 @@ export const getAISuggestions = async (req, res) => {
       preference = "veg"; // default to veg if invalid
     }
 
-   const response = await getClient().chat.completions.create({
-  model: "deepseek/deepseek-chat-v3.1:free",
-
-  messages: [
-    { role: "system", content: "You are a nutrition expert." },
-    {
-      role: "user",
-      content: `Suggest a daily meal plan (breakfast, lunch, dinner, snacks)
-      for a calorie goal of ${dailyCalories} kcal. Meals should be ${preference}.${customPrompt ? ` Additional requirements: ${customPrompt}` : ''}`,
-    },
-  ],
-});
-
+    const response = await getClient().chat.completions.create({
+      model: "deepseek/deepseek-r1:free",
+      messages: [
+        { role: "system", content: "You are a nutrition expert." },
+        {
+          role: "user",
+          content: `Suggest a daily meal plan (breakfast, lunch, dinner, snacks)
+          for a calorie goal of ${dailyCalories} kcal. Meals should be ${preference}.${customPrompt ? ` Additional requirements: ${customPrompt}` : ''}`,
+        },
+      ],
+    });
 
     const suggestion = response.choices[0].message.content;
 
@@ -56,7 +49,8 @@ export const getAISuggestions = async (req, res) => {
     console.log("Suggestion generated:", suggestion.substring(0, 100) + "...");
 
     // Save in DB
-    const userId = req.user ? req.user.id : null;
+    // Use user id if authenticated, else use null
+    const userId = req.user && req.user.id ? req.user.id : null;
 
     const saved = await AISuggestion.create({
       user: userId,
@@ -86,7 +80,7 @@ export const calculateCaloriesBurned = async (req, res) => {
     const prompt = `Calculate the estimated calories burned for doing ${reps} repetitions of ${exercise}. Provide only the number in kcal.`;
 
     const response = await getClient().chat.completions.create({
-      model: "deepseek/deepseek-chat-v3.1:free",
+      model: "deepseek/deepseek-r1:free",
       messages: [
         { role: "system", content: "You are a fitness expert." },
         { role: "user", content: prompt },
@@ -117,6 +111,3 @@ export const getHistory = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
-// Calculate calories burned
-// Removed duplicate declaration to fix redeclaration error

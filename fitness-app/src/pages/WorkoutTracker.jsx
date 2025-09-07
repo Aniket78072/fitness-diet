@@ -80,7 +80,7 @@ export default function WorkoutTracker() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-6 max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold mt-20">Workout Tracker</h2>
 
       <Message message={message} type={messageType} onClose={() => setMessage(null)} />
@@ -88,94 +88,102 @@ export default function WorkoutTracker() {
       {/* Add Workout Form */}
       <form
         onSubmit={addWorkout}
-        className="flex flex-col gap-3 max-w-md bg-gray-50 p-4 rounded-lg shadow"
+        className="flex flex-col gap-4 max-w-md bg-white p-6 rounded-lg shadow-sm border"
       >
-        <div className="flex gap-2 items-center">
+        <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
           <input
             type="text"
             placeholder="Exercise"
             value={exercise}
             onChange={(e) => setExercise(e.target.value)}
-            className="border p-2 rounded flex-grow"
+            className="border p-3 rounded text-sm flex-grow w-full"
             required
           />
           <button
             type="button"
             onClick={handleFetchExerciseData}
             disabled={loadingExerciseData}
-            className="bg-purple-600 text-white px-4 py-2 rounded shadow hover:bg-purple-700"
+            className="bg-purple-600 text-white px-4 py-3 rounded shadow hover:bg-purple-700 transition-colors text-sm w-full sm:w-auto whitespace-nowrap"
           >
             {loadingExerciseData ? "Loading..." : "Get Info"}
           </button>
         </div>
+
         <input
           type="number"
           placeholder="Reps"
           value={reps}
           onChange={(e) => setReps(e.target.value)}
-          className="border p-2 rounded"
+          className="border p-3 rounded text-sm w-full"
           required
         />
-        <div className="flex gap-2 items-center">
+
+        <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
           <input
             type="number"
             placeholder="Calories Burned"
             value={caloriesBurned}
             onChange={(e) => setCaloriesBurned(e.target.value)}
-            className="border p-2 rounded flex-grow"
+            className="border p-3 rounded text-sm flex-grow w-full"
             required
           />
           <button
             type="button"
             onClick={calculateCalories}
             disabled={loadingCalories}
-            className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
+            className="bg-blue-600 text-white px-4 py-3 rounded shadow hover:bg-blue-700 transition-colors text-sm w-full sm:w-auto whitespace-nowrap"
           >
             {loadingCalories ? "Calculating..." : "Calculate"}
           </button>
         </div>
-        <button className="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700">
+
+        <button className="bg-green-600 text-white px-4 py-3 rounded shadow hover:bg-green-700 transition-colors text-sm w-full">
           Add Workout
         </button>
       </form>
 
       {/* Exercise Data Display */}
       {exerciseData && (
-        <div className="max-w-md bg-blue-50 p-4 rounded-lg shadow text-black">
-          <h3 className="text-lg font-semibold mb-2">Exercise Information</h3>
-          <div className="space-y-2">
-            <p><strong>Name:</strong> {exerciseData.name}</p>
-            <p><strong>Type:</strong> {exerciseData.type}</p>
-            <p><strong>Muscle:</strong> {exerciseData.muscle}</p>
-            <p><strong>Equipment:</strong> {exerciseData.equipment}</p>
-            <p><strong>Difficulty:</strong> {exerciseData.difficulty}</p>
+        <div className="max-w-md bg-blue-50 p-4 rounded-lg shadow text-black border">
+          <h3 className="text-lg font-semibold mb-4">Exercise Information</h3>
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <p><strong className="text-gray-700">Name:</strong> {exerciseData.name}</p>
+              <p><strong className="text-gray-700">Type:</strong> {exerciseData.type}</p>
+              <p><strong className="text-gray-700">Muscle:</strong> {exerciseData.muscle}</p>
+              <p><strong className="text-gray-700">Equipment:</strong> {exerciseData.equipment}</p>
+              <p className="sm:col-span-2"><strong className="text-gray-700">Difficulty:</strong> {exerciseData.difficulty}</p>
+            </div>
             <div>
-              <strong>Instructions:</strong>
-              <p className="mt-1 text-sm">{exerciseData.instructions}</p>
+              <strong className="text-gray-700">Instructions:</strong>
+              <p className="mt-2 text-sm leading-relaxed">{exerciseData.instructions}</p>
             </div>
           </div>
         </div>
       )}
 
       {/* Workout List */}
-      <div>
-        <h3 className="text-lg font-semibold mb-2">Workout History</h3>
+      <div className="bg-white p-4 rounded-lg shadow-sm border">
+        <h3 className="text-lg font-semibold mb-4">Workout History</h3>
         {workouts.length === 0 ? (
-          <p className="text-gray-500">No workouts logged yet.</p>
+          <p className="text-gray-800 text-center py-4">No workouts logged yet.</p>
         ) : (
-          <ul className="space-y-2">
+          <div className="space-y-3">
             {workouts.map((w) => (
-              <li
+              <div
                 key={w._id}
-                className="flex justify-between border p-2 rounded bg-white shadow-sm text-black"
+                className="flex flex-col sm:flex-row justify-between border p-3 rounded bg-gray-50 shadow-sm text-black"
               >
-                <span>
+                <span className="font-medium text-sm sm:text-base mb-1 sm:mb-0">
                   {w.exercise} ({w.reps} reps)
                 </span>
-                <span className="text-red-600">-{w.caloriesBurned} kcal</span>
-              </li>
+                <div className="flex flex-col sm:items-end">
+                  <span className="text-red-600 font-medium text-sm">-{w.caloriesBurned} kcal</span>
+                  <span className="text-xs text-gray-500">{new Date(w.date).toLocaleDateString()}</span>
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>

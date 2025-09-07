@@ -69,53 +69,80 @@ export default function FoodLog() {
   const hasMore = totalLogs > 0 && (showMore ? false : sortedDates.length > 3);
 
   return (
-    <div className="p-6 food-log-container mt-20">
-      <h2 className="text-2xl mb-4 mt-30 tex text-orange-500 font-bold">Log Food</h2>
+    <div className="p-4 md:p-6 max-w-4xl mx-auto ">
+      <h2 className="text-2xl font-bold mb-6 text-orange-500">Log Food</h2>
       <Message message={message} type={messageType} onClose={() => setMessage(null)} />
-      <form onSubmit={handleTextSubmit} className="flex gap-2 mb-4">
-        <input
-          placeholder="Enter food name"
-          onChange={(e) => setText(e.target.value)}
-          value={text}
-          className="input-text"
-        />
-        <button className="btn btn-blue" disabled={loading}>Log Text</button>
-      </form>
+
+      <div className="bg-white p-4 rounded-lg shadow-sm border mb-6">
+        <form onSubmit={handleTextSubmit} className="flex flex-col sm:flex-row gap-3">
+          <input
+            placeholder="Enter food name (e.g., '1 apple' or 'chicken breast 200g')"
+            onChange={(e) => setText(e.target.value)}
+            value={text}
+            className="flex-1 px-3 py-3 border rounded text-sm w-full"
+            required
+          />
+          <button
+            className="px-6 py-3 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition-colors disabled:bg-gray-400 text-sm w-full sm:w-auto whitespace-nowrap"
+            disabled={loading}
+          >
+            {loading ? "Logging..." : "Log Food"}
+          </button>
+        </form>
+      </div>
+
       {/* <form onSubmit={handleImageSubmit} className="flex gap-2 mb-6">
         <input type="file" onChange={(e) => setFile(e.target.files[0])} />
         <button className="btn btn-purple" disabled={loading}>Log Image</button>
       </form> */}
 
-      {error && <p className="text-red-600 mb-4">Error: {error}</p>}
+      {error && <p className="text-red-600 mb-4 text-center">Error: {error}</p>}
 
-      <h3 className="text-lg mb-2">Your Logs</h3>
-      {Object.keys(logsByDate).length === 0 && <p>No food logs found.</p>}
-      {displayedDates.map((date) => (
-        <div key={date} className="log-date-group">
-          <h4 className="log-date">{date}</h4>
-          <ul className="log-list">
-            {logsByDate[date].map((log, idx) => (
-              <li key={idx} className="log-item">
-                {log.imageUrl && (
-                  <img src={log.imageUrl} alt={log.foodName} className="log-image" />
-                )}
-                <div className="log-details">
-                  <div className="log-food-name">{log.foodName}</div>
-                  <div className="log-calories">{log.calories} kcal</div>
+      <div className="bg-white p-4 rounded-lg shadow-sm border">
+        <h3 className="text-lg font-semibold mb-4">Your Food Logs</h3>
+        {Object.keys(logsByDate).length === 0 ? (
+          <p className="text-gray-500 text-center py-4">No food logs found.</p>
+        ) : (
+          <div className="space-y-4">
+            {displayedDates.map((date) => (
+              <div key={date} className="bg-gray-50 p-4 rounded-lg border">
+                <h4 className="text-lg font-medium text-gray-800 mb-3 pb-2 border-b">{date}</h4>
+                <div className="space-y-3">
+                  {logsByDate[date].map((log, idx) => (
+                    <div key={idx} className="flex items-center bg-white p-3 rounded shadow-sm border">
+                      {log.imageUrl && (
+                        <img
+                          src={log.imageUrl}
+                          alt={log.foodName}
+                          className="w-16 h-16 object-cover rounded mr-4 flex-shrink-0"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-gray-900 truncate">{log.foodName}</div>
+                        <div className="text-orange-600 font-medium text-sm">{log.calories} kcal</div>
+                        {log.protein && (
+                          <div className="text-gray-600 text-xs">{log.protein}g protein</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </li>
+              </div>
             ))}
-          </ul>
-        </div>
-      ))}
-      {hasMore && (
-        <button
-          onClick={() => setShowMore(!showMore)}
-          className="btn btn-blue mt-4"
-        >
-          {showMore ? "Show Less" : "Show More"}
-        </button>
-      )}
+          </div>
+        )}
+
+        {hasMore && (
+          <div className="text-center mt-6">
+            <button
+              onClick={() => setShowMore(!showMore)}
+              className="px-6 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition-colors text-sm"
+            >
+              {showMore ? "Show Less" : "Show More"}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
