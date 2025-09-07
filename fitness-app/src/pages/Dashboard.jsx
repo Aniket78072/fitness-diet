@@ -392,7 +392,7 @@ const fetchWorkouts = async () => {
 
       {/* Latest Suggestion */}
       {latestSuggestion && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg shadow-sm">
+        <div className="p-4 border text-white border-green-200 rounded-lg shadow-sm">
           <h3 className="text-lg font-semibold mb-2">AI Meal Suggestion</h3>
           <p className="whitespace-pre-line text-sm">{latestSuggestion.suggestion}</p>
           <p className="text-xs text-gray-500 mt-2">
