@@ -24,7 +24,8 @@ const app = express();
 app.use(cors({
   origin: [
     "https://fitness-diet-frontend-43lh.onrender.com", // Render frontend URL
-    "https://fitness-app7.netlify.app", // Netlify frontend URL (if still needed)
+    "https://fitness-app7.netlify.app", // Netlify frontend URL
+    "https://68bd821477a2c900084db28c--fitness-app7.netlify.app", // Netlify deployment URL
    // Local development
     "http://localhost:5175" // Vite dev server
   ],
