@@ -18,7 +18,7 @@ export default function Suggestions() {
       const res = await api.get("/users/calorie-goal");
       const dailyCalories = res.data.dailyCalories;
 
-      // Use fetch for streaming response
+      // Use fetch for normal response (non-streaming)
       const response = await fetch(`${api.defaults.baseURL}/ai/suggestions`, {
         method: 'POST',
         headers: {
@@ -38,41 +38,9 @@ export default function Suggestions() {
         return;
       }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedSuggestion = "";
-      let isDone = false;
+      const data = await response.json();
+      setSuggestion(data.suggestion);
 
-      while (!isDone) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6).trim();
-            if (data !== '') {
-              accumulatedSuggestion += data;
-              setSuggestion(accumulatedSuggestion);
-              console.log("Accumulated suggestion updated:", accumulatedSuggestion);
-            }
-          } else if (line.startsWith('event: done')) {
-            // Suggestion complete
-            fetchHistory();
-            isDone = true;   // stop loop
-            break;
-          } else if (line.startsWith('event: error')) {
-            const errorData = JSON.parse(line.slice(13));
-            alert(`Error: ${errorData.error}`);
-            isDone = true;   // stop loop
-            break;
-          }
-        }
-      }
-
-      reader.cancel(); // ensure reader is closed
     } catch (error) {
       console.error("Error getting suggestion:", error);
       alert("Failed to get AI suggestion. Please try again.");

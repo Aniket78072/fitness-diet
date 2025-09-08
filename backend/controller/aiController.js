@@ -40,28 +40,8 @@ export const getAISuggestions = async (req, res) => {
 
     if (cachedSuggestion) {
       console.log("Using cached suggestion");
-      // Set headers for Server-Sent Events (SSE)
-      res.setHeader("Content-Type", "text/event-stream");
-      res.setHeader("Cache-Control", "no-cache, no-transform");
-      res.setHeader("Connection", "keep-alive");
-      res.flushHeaders();
-
-      // Stream the cached suggestion
-      const suggestion = cachedSuggestion.suggestion;
-      // Send the entire cached suggestion as one SSE event
-      res.write(`data: ${suggestion}\n\n`);
-      // Send a final event to indicate end of stream
-      res.write(`event: done\ndata: ${JSON.stringify({ id: cachedSuggestion._id })}\n\n`);
-      res.end();
-      return;
+      return res.json({ suggestion: cachedSuggestion.suggestion });
     }
-
-    // No cached suggestion, proceed with API call
-    // Set headers for Server-Sent Events (SSE)
-    res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache, no-transform");
-    res.setHeader("Connection", "keep-alive");
-    res.flushHeaders();
 
     const client = getClient();
 
@@ -76,28 +56,18 @@ export const getAISuggestions = async (req, res) => {
 
     const modelName = "deepseek/deepseek-r1:free";
 
-    let fullSuggestion = "";
-
     const completion = await client.chat.completions.create({
       model: modelName,
       messages: messages,
-      stream: true,
       max_tokens: 1000,
     });
 
-    for await (const part of completion) {
-      const token = part.choices[0].delta?.content;
-      if (token) {
-        fullSuggestion += token;
-        // Send token to client as SSE data event
-        res.write(`data: ${token}\n\n`);
-      }
-    }
+    const fullSuggestion = completion.choices[0].message.content;
 
-    console.log("Full AI Suggestion generated:", fullSuggestion);  // Added logging
-    console.log("Full AI Suggestion length:", fullSuggestion.length);  // Added length logging
+    console.log("Full AI Suggestion generated:", fullSuggestion);
+    console.log("Full AI Suggestion length:", fullSuggestion.length);
 
-    // After streaming is done, save suggestion to DB
+    // Save suggestion to DB
     const userId = req.user && req.user.id ? req.user.id : null;
 
     const saved = await AISuggestion.create({
@@ -107,21 +77,15 @@ export const getAISuggestions = async (req, res) => {
       suggestion: fullSuggestion,
     });
 
-    // Send a final event to indicate end of stream and include saved suggestion id (optional)
-    res.write(`event: done\ndata: ${JSON.stringify({ id: saved._id })}\n\n`);
-
-    res.end();
+    return res.json({ suggestion: fullSuggestion });
   } catch (err) {
     console.error("AI Controller Error:", err);
     if (err.response) {
       console.error("DeepSeek API response error:", err.response.status, err.response.data);
     }
-    // If headers not sent, send error response
     if (!res.headersSent) {
       res.status(500).json({ error: err.message });
     } else {
-      // If headers sent, send error event and end stream
-      res.write(`event: error\ndata: ${JSON.stringify({ error: err.message })}\n\n`);
       res.end();
     }
   }
