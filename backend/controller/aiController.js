@@ -33,19 +33,31 @@ export const getAISuggestions = async (req, res) => {
     }
 
     // Check for cached suggestion
-    const cachedSuggestion = await AISuggestion.findOne({
+    let cacheQuery = {
       dailyCalories,
       preference,
-      $or: [
-        { customPrompt: customPrompt || null },
-        { customPrompt: { $exists: false } }  // Handle existing docs without customPrompt
-      ]
-    }).sort({ createdAt: -1 }); // Get the most recent one
+    };
+
+    if (customPrompt) {
+      // If custom prompt provided, match exactly
+      cacheQuery.customPrompt = customPrompt;
+    } else {
+      // If no custom prompt, match null or undefined
+      cacheQuery.$or = [
+        { customPrompt: null },
+        { customPrompt: { $exists: false } }
+      ];
+    }
+
+    console.log("Cache query:", JSON.stringify(cacheQuery));
+    const cachedSuggestion = await AISuggestion.findOne(cacheQuery).sort({ createdAt: -1 });
 
     if (cachedSuggestion) {
-      console.log("Using cached suggestion");
+      console.log("Using cached suggestion for customPrompt:", customPrompt);
       return res.json({ suggestion: cachedSuggestion.suggestion });
     }
+
+    console.log("No cached suggestion found, generating new one for customPrompt:", customPrompt);
 
     const client = getClient();
 
