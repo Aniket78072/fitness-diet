@@ -32,52 +32,95 @@ export const getAISuggestions = async (req, res) => {
       preference = "veg"; // default to veg if invalid
     }
 
-    // const response = await getClient().chat.completions.create({
-    const response = await axios.post(
-      "https://openrouter.ai/api/v1/chat/completions",
+    // Check for cached suggestion
+    const cachedSuggestion = await AISuggestion.findOne({
+      dailyCalories,
+      preference,
+    }).sort({ createdAt: -1 }); // Get the most recent one
+
+    if (cachedSuggestion) {
+      console.log("Using cached suggestion");
+      // Set headers for Server-Sent Events (SSE)
+      res.setHeader("Content-Type", "text/event-stream");
+      res.setHeader("Cache-Control", "no-cache, no-transform");
+      res.setHeader("Connection", "keep-alive");
+      res.flushHeaders();
+
+      // Stream the cached suggestion
+      const suggestion = cachedSuggestion.suggestion;
+      // Send the entire cached suggestion as one SSE event
+      res.write(`data: ${suggestion}\n\n`);
+      // Send a final event to indicate end of stream
+      res.write(`event: done\ndata: ${JSON.stringify({ id: cachedSuggestion._id })}\n\n`);
+      res.end();
+      return;
+    }
+
+    // No cached suggestion, proceed with API call
+    // Set headers for Server-Sent Events (SSE)
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache, no-transform");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders();
+
+    const client = getClient();
+
+    const messages = [
+      { role: "system", content: "You are a nutrition expert." },
       {
-      model: "deepseek/deepseek-r1:free",
-      messages: [
-        { role: "system", content: "You are a nutrition expert." },
-        {
-          role: "user",
-          content: `Suggest a daily meal plan (breakfast, lunch, dinner, snacks)
+        role: "user",
+        content: `Suggest a daily meal plan (breakfast, lunch, dinner, snacks)
           for a calorie goal of ${dailyCalories} kcal. Meals should be ${preference}.${customPrompt ? ` Additional requirements: ${customPrompt}` : ''}`,
-        },
-      ],
-    },
-    {
-      headers: {
-          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          "Content-Type": "application/json",
-          "HTTP-Referer": "https://fitness-app7.netlify.app/", // optional but recommended
-          "X-Title": "AI Suggestion Feature", // optional
       },
+    ];
+
+    const modelName = "deepseek/deepseek-r1:free";
+
+    let fullSuggestion = "";
+
+    const completion = await client.chat.completions.create({
+      model: modelName,
+      messages: messages,
+      stream: true,
+      max_tokens: 300,
     });
 
-    const suggestion = response.data.choices[0].message.content;
+    for await (const part of completion) {
+      const token = part.choices[0].delta?.content;
+      if (token) {
+        fullSuggestion += token;
+        // Send token to client as SSE data event
+        res.write(`data: ${token}\n\n`);
+      }
+    }
 
-    console.log("DeepSeek Response received");
-    console.log("Suggestion generated:", suggestion.substring(0, 100) + "...");
-
-    // Save in DB
-    // Use user id if authenticated, else use null
+    // After streaming is done, save suggestion to DB
     const userId = req.user && req.user.id ? req.user.id : null;
 
     const saved = await AISuggestion.create({
       user: userId,
       dailyCalories,
       preference,
-      suggestion,
+      suggestion: fullSuggestion,
     });
 
-    res.json(saved);
+    // Send a final event to indicate end of stream and include saved suggestion id (optional)
+    res.write(`event: done\ndata: ${JSON.stringify({ id: saved._id })}\n\n`);
+
+    res.end();
   } catch (err) {
     console.error("AI Controller Error:", err);
     if (err.response) {
       console.error("DeepSeek API response error:", err.response.status, err.response.data);
     }
-    res.status(500).json({ error: err.message });
+    // If headers not sent, send error response
+    if (!res.headersSent) {
+      res.status(500).json({ error: err.message });
+    } else {
+      // If headers sent, send error event and end stream
+      res.write(`event: error\ndata: ${JSON.stringify({ error: err.message })}\n\n`);
+      res.end();
+    }
   }
 };
 

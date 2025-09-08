@@ -1,11 +1,5 @@
-- [x] Add _redirects file to fitness-app/public for Netlify SPA routing fallback
-- [x] Verify backend does not serve static files (only API routes)
-- [x] Confirm no backend changes needed for SPA fallback
-- [x] Remove Gemini API integration from backend/utils/openai.js
-- [x] Remove Gemini API integration from backend/utils/nutritionix.js
-- [x] Remove logFoodByImage function from backend/controller/foodController.js
-- [x] Remove image upload route from backend/routes/foodRoutes.js
-- [x] Update CORS configuration to allow correct frontend origins
-- [x] Test backend login endpoint accessibility
-- [x] Test CORS preflight requests
-- [x] Verify backend responds correctly to authentication requests
+- [x] Fix incorrect calorie and protein calculation for countable items like eggs
+  - [x] Updated parseFoodQuery to identify countable vs weight-based quantities
+  - [x] Modified multiplier calculation in logFoodByText to use correct scaling
+  - [x] For countable items (eggs, apples): multiplier = quantity
+  - [x] For weight-based items: multiplier = quantity / 100

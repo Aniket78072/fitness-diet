@@ -33,6 +33,8 @@ const parseFoodQuery = (query) => {
 
       // Convert units to grams for consistency
       let normalizedQuantity = quantity;
+      let isCountable = false;
+
       if (unit === 'kg') {
         normalizedQuantity = quantity * 1000; // kg to g
       } else if (unit === 'oz') {
@@ -45,6 +47,7 @@ const parseFoodQuery = (query) => {
       } else if (unit.match(/eggs?|apples?|bananas?|pieces?|servings?/i)) {
         // For countable items, keep as count but assume base is 1 unit
         normalizedQuantity = quantity;
+        isCountable = true;
       } else if (!unit || unit === 'g') {
         // Already in grams or no unit specified
         normalizedQuantity = quantity;
@@ -53,7 +56,8 @@ const parseFoodQuery = (query) => {
       return {
         quantity: normalizedQuantity,
         foodName: foodName || query, // fallback to original query
-        originalQuery: query
+        originalQuery: query,
+        isCountable: isCountable
       };
     }
   }
@@ -62,7 +66,8 @@ const parseFoodQuery = (query) => {
   return {
     quantity: 100,
     foodName: query,
-    originalQuery: query
+    originalQuery: query,
+    isCountable: false
   };
 };
 
@@ -72,8 +77,8 @@ export const logFoodByText = async (req, res) => {
     const { query } = req.body;
 
     // Parse quantity and food name from query
-    const { quantity, foodName } = parseFoodQuery(query);
-    console.log("Parsed quantity:", quantity, "foodName:", foodName);
+    const { quantity, foodName, isCountable } = parseFoodQuery(query);
+    console.log("Parsed quantity:", quantity, "foodName:", foodName, "isCountable:", isCountable);
 
     // Get nutritional data for the base food item
     const data = await getFoodData(foodName);
@@ -81,7 +86,9 @@ export const logFoodByText = async (req, res) => {
     const food = data.foods[0];
 
     // Calculate nutritional values based on quantity
-    const multiplier = quantity / 100; // Assuming base data is for 100g or 1 unit
+    // For countable items (eggs, apples), base data is per 1 unit, so multiplier = quantity
+    // For weight-based items, base data is per 100g, so multiplier = quantity / 100
+    const multiplier = isCountable ? quantity : quantity / 100;
     const adjustedCalories = Math.round(food.nf_calories * multiplier);
     const adjustedProtein = Math.round(food.nf_protein * multiplier * 10) / 10; // Round to 1 decimal
     const adjustedFat = Math.round(food.nf_total_fat * multiplier * 10) / 10;

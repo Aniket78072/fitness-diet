@@ -27,7 +27,8 @@ app.use(cors({
     "https://fitness-app7.netlify.app", // Netlify frontend URL
     "https://68bd821477a2c900084db28c--fitness-app7.netlify.app", // Netlify deployment URL
    // Local development
-    "http://localhost:5175" // Vite dev server
+    "http://localhost:5175" ,
+     "http://localhost:5173"
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
