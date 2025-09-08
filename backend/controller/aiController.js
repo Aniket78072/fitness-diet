@@ -83,6 +83,11 @@ export const getAISuggestions = async (req, res) => {
     console.log("Full AI Suggestion generated:", fullSuggestion);
     console.log("Full AI Suggestion length:", fullSuggestion.length);
 
+    if (!fullSuggestion || fullSuggestion.trim().length === 0) {
+      console.error("AI suggestion is empty. Possibly an issue with the AI API response or prompt.");
+      return res.status(500).json({ error: "AI suggestion is empty. Please check API key and prompt." });
+    }
+
     // Save suggestion to DB
     const userId = req.user && req.user.id ? req.user.id : null;
 
