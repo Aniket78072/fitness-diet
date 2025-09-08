@@ -36,6 +36,10 @@ export const getAISuggestions = async (req, res) => {
     const cachedSuggestion = await AISuggestion.findOne({
       dailyCalories,
       preference,
+      $or: [
+        { customPrompt: customPrompt || null },
+        { customPrompt: { $exists: false } }  // Handle existing docs without customPrompt
+      ]
     }).sort({ createdAt: -1 }); // Get the most recent one
 
     if (cachedSuggestion) {
@@ -49,7 +53,7 @@ export const getAISuggestions = async (req, res) => {
       { role: "system", content: "You are a nutrition expert." },
       {
         role: "user",
-        content: `Suggest a daily meal plan (breakfast, lunch, dinner, snacks)
+        content: `Suggest a indian daily meal plan (breakfast, lunch, dinner, snacks)
           for a calorie goal of ${dailyCalories} kcal. Meals should be ${preference}.${customPrompt ? ` Additional requirements: ${customPrompt}` : ''}`,
       },
     ];
@@ -74,6 +78,7 @@ export const getAISuggestions = async (req, res) => {
       user: userId,
       dailyCalories,
       preference,
+      customPrompt: customPrompt || null,  // Include customPrompt when saving
       suggestion: fullSuggestion,
     });
 

@@ -40,6 +40,7 @@ export default function Suggestions() {
 
       const data = await response.json();
       setSuggestion(data.suggestion);
+      fetchHistory();  // Refresh history after getting new suggestion
 
     } catch (error) {
       console.error("Error getting suggestion:", error);
