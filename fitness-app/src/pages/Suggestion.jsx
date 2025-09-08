@@ -41,8 +41,9 @@ export default function Suggestions() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let accumulatedSuggestion = "";
+      let isDone = false;
 
-      while (true) {
+      while (!isDone) {
         const { done, value } = await reader.read();
         if (done) break;
 
@@ -51,22 +52,26 @@ export default function Suggestions() {
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
-            const data = line.slice(6);
+            const data = line.slice(6).trim();
             if (data !== '') {
               accumulatedSuggestion += data;
               setSuggestion(accumulatedSuggestion);
             }
           } else if (line.startsWith('event: done')) {
             // Suggestion complete
-            fetchHistory(); // refresh history
+            fetchHistory();
+            isDone = true;   // stop loop
             break;
           } else if (line.startsWith('event: error')) {
             const errorData = JSON.parse(line.slice(13));
             alert(`Error: ${errorData.error}`);
+            isDone = true;   // stop loop
             break;
           }
         }
       }
+
+      reader.cancel(); // ensure reader is closed
     } catch (error) {
       console.error("Error getting suggestion:", error);
       alert("Failed to get AI suggestion. Please try again.");
