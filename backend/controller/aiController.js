@@ -32,84 +32,52 @@ export const getAISuggestions = async (req, res) => {
       preference = "veg"; // default to veg if invalid
     }
 
-    // Check for cached suggestion
-    let cacheQuery = {
-      dailyCalories,
-      preference,
-    };
-
-    if (customPrompt) {
-      // If custom prompt provided, match exactly
-      cacheQuery.customPrompt = customPrompt;
-    } else {
-      // If no custom prompt, match null or undefined
-      cacheQuery.$or = [
-        { customPrompt: null },
-        { customPrompt: { $exists: false } }
-      ];
-    }
-
-    console.log("Cache query:", JSON.stringify(cacheQuery));
-    const cachedSuggestion = await AISuggestion.findOne(cacheQuery).sort({ createdAt: -1 });
-
-    if (cachedSuggestion) {
-      console.log("Using cached suggestion for customPrompt:", customPrompt);
-      return res.json({ suggestion: cachedSuggestion.suggestion });
-    }
-
-    console.log("No cached suggestion found, generating new one for customPrompt:", customPrompt);
-
-    const client = getClient();
-
-    const messages = [
-      { role: "system", content: "You are a nutrition expert." },
+    // const response = await getClient().chat.completions.create({
+    const response = await axios.post(
+      "https://openrouter.ai/api/v1/chat/completions",
       {
-        role: "user",
-        content: `Suggest a indian daily meal plan (breakfast, lunch, dinner, snacks)
+      model: "deepseek/deepseek-r1:free",
+      messages: [
+        { role: "system", content: "You are a nutrition expert." },
+        {
+          role: "user",
+          content: `Suggest a daily indian style meal plan (breakfast, lunch, dinner, snacks)
           for a calorie goal of ${dailyCalories} kcal. Meals should be ${preference}.${customPrompt ? ` Additional requirements: ${customPrompt}` : ''}`,
+        },
+      ],
+    },
+    {
+      headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://fitness-app7.netlify.app/", // optional but recommended
+          "X-Title": "AI Suggestion Feature", // optional
       },
-    ];
-
-    const modelName = "deepseek/deepseek-r1:free";
-
-    const completion = await client.chat.completions.create({
-      model: modelName,
-      messages: messages,
-      max_tokens: 1000,
     });
 
-    const fullSuggestion = completion.choices[0].message.content;
+    const suggestion = response.data.choices[0].message.content;
 
-    console.log("Full AI Suggestion generated:", fullSuggestion);
-    console.log("Full AI Suggestion length:", fullSuggestion.length);
+    console.log("DeepSeek Response received");
+    console.log("Suggestion generated:", suggestion.substring(0, 100) + "...");
 
-    if (!fullSuggestion || fullSuggestion.trim().length === 0) {
-      console.error("AI suggestion is empty. Possibly an issue with the AI API response or prompt.");
-      return res.status(500).json({ error: "AI suggestion is empty. Please check API key and prompt." });
-    }
-
-    // Save suggestion to DB
+    // Save in DB
+    // Use user id if authenticated, else use null
     const userId = req.user && req.user.id ? req.user.id : null;
 
     const saved = await AISuggestion.create({
       user: userId,
       dailyCalories,
       preference,
-      customPrompt: customPrompt || null,  // Include customPrompt when saving
-      suggestion: fullSuggestion,
+      suggestion,
     });
 
-    return res.json({ suggestion: fullSuggestion });
+    res.json(saved);
   } catch (err) {
     console.error("AI Controller Error:", err);
     if (err.response) {
       console.error("DeepSeek API response error:", err.response.status, err.response.data);
     }
-    if (!res.headersSent) {
-      res.status(500).json({ error: err.message });
-    } else {
-      res.end();
-    }
+    res.status(500).json({ error: err.message });
   }
 };
 
