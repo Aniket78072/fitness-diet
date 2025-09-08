@@ -94,6 +94,8 @@ export const getAISuggestions = async (req, res) => {
       }
     }
 
+    console.log("Full AI Suggestion generated:", fullSuggestion);  // Added logging
+
     // After streaming is done, save suggestion to DB
     const userId = req.user && req.user.id ? req.user.id : null;
 

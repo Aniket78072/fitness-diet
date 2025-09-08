@@ -56,6 +56,7 @@ export default function Suggestions() {
             if (data !== '') {
               accumulatedSuggestion += data;
               setSuggestion(accumulatedSuggestion);
+              console.log("Accumulated suggestion updated:", accumulatedSuggestion);
             }
           } else if (line.startsWith('event: done')) {
             // Suggestion complete
@@ -144,7 +145,7 @@ export default function Suggestions() {
         </div>
       )}
 
-      {suggestion && (
+      {suggestion ? (
         <div className="mt-6 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
           <div className="bg-gradient-to-r from-green-500 to-blue-500 p-4">
             <h3 className="text-white text-lg font-bold flex items-center">
@@ -170,6 +171,10 @@ export default function Suggestions() {
               </button>
             </div>
           </div>
+        </div>
+      ) : !loading && (
+        <div className="mt-6 p-4 bg-yellow-50 border border-yellow-300 rounded text-yellow-700 text-center">
+          No AI suggestion available. Please try again.
         </div>
       )}
 
