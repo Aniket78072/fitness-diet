@@ -82,7 +82,7 @@ export const getAISuggestions = async (req, res) => {
       model: modelName,
       messages: messages,
       stream: true,
-      max_tokens: 300,
+      max_tokens: 1000,
     });
 
     for await (const part of completion) {
@@ -95,6 +95,7 @@ export const getAISuggestions = async (req, res) => {
     }
 
     console.log("Full AI Suggestion generated:", fullSuggestion);  // Added logging
+    console.log("Full AI Suggestion length:", fullSuggestion.length);  // Added length logging
 
     // After streaming is done, save suggestion to DB
     const userId = req.user && req.user.id ? req.user.id : null;
