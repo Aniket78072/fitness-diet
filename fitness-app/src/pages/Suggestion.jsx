@@ -12,25 +12,64 @@ export default function Suggestions() {
 
   const getSuggestion = async () => {
     setLoading(true);
+    setSuggestion(""); // Clear previous suggestion
     try {
       // fetch daily calories first
       const res = await api.get("/users/calorie-goal");
-
       const dailyCalories = res.data.dailyCalories;
 
-      // request new AI suggestion
-      const aiRes = await api.post("/ai/suggestions", { dailyCalories, preference, customPrompt });
+      // Use fetch for streaming response
+      const response = await fetch(`${api.defaults.baseURL}/ai/suggestions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ dailyCalories, preference, customPrompt }),
+      });
 
-      setSuggestion(aiRes.data.suggestion);
-      fetchHistory(); // refresh history
+      if (!response.ok) {
+        if (response.status === 400) {
+          const errorData = await response.json();
+          alert(errorData.error);
+        } else {
+          alert("Failed to get AI suggestion. Please try again.");
+        }
+        return;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedSuggestion = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data !== '') {
+              accumulatedSuggestion += data;
+              setSuggestion(accumulatedSuggestion);
+            }
+          } else if (line.startsWith('event: done')) {
+            // Suggestion complete
+            fetchHistory(); // refresh history
+            break;
+          } else if (line.startsWith('event: error')) {
+            const errorData = JSON.parse(line.slice(13));
+            alert(`Error: ${errorData.error}`);
+            break;
+          }
+        }
+      }
     } catch (error) {
       console.error("Error getting suggestion:", error);
-      if (error.response?.status === 400 && error.response?.data?.error) {
-        // Show user-friendly error message for incomplete profile
-        alert(error.response.data.error);
-      } else {
-        alert("Failed to get AI suggestion. Please try again.");
-      }
+      alert("Failed to get AI suggestion. Please try again.");
     } finally {
       setLoading(false);
     }
