@@ -50,6 +50,13 @@ const mockFoodData = {
     nf_protein: 18.0,
     nf_total_fat: 20.0,
     nf_total_carbohydrate: 3.0
+  },
+  "roti": {
+    food_name: "wheat roti",
+    nf_calories: 150,
+    nf_protein: 4.5,
+    nf_total_fat: 2.0,
+    nf_total_carbohydrate: 30.0
   }
 };
 

@@ -19,7 +19,7 @@ const parseFoodQuery = (query) => {
     // Weight patterns: 250g, 1.5kg, 500ml, etc.
     /(\d+(?:\.\d+)?)\s*(g|kg|ml|l|oz|lb)/i,
     // Count patterns: 2 eggs, 3 apples, etc.
-    /(\d+(?:\.\d+)?)\s*(eggs?|apples?|bananas?|pieces?|servings?)/i,
+    /(\d+(?:\.\d+)?)\s*(eggs?|apples?|bananas?|pieces?|servings?|rotis?)/i,
     // Simple numbers: 2, 1.5, etc.
     /^(\d+(?:\.\d+)?)\s+/,
   ];
@@ -44,7 +44,7 @@ const parseFoodQuery = (query) => {
       } else if (unit === 'ml' || unit === 'l') {
         // For liquids, assume density ~1g/ml, so ml/l ≈ g
         normalizedQuantity = unit === 'l' ? quantity * 1000 : quantity;
-      } else if (unit.match(/eggs?|apples?|bananas?|pieces?|servings?/i)) {
+      } else if (unit.match(/eggs?|apples?|bananas?|pieces?|servings?|rotis?/i)) {
         // For countable items, keep as count but assume base is 1 unit
         normalizedQuantity = quantity;
         isCountable = true;
