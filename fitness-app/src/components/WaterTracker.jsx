@@ -114,7 +114,7 @@ export default function WaterTracker() {
       </div>
 
       {/* Message */}
-      <p className="text-center text-lg font-medium">{getMessage()}</p>
+      <p className="text-center text-lg text-black font-medium">{getMessage()}</p>
 
       {error && <p className="text-red-500 text-center mt-4">{error}</p>}
     </div>
