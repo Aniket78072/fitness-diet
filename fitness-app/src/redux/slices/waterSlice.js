@@ -17,9 +17,9 @@ export const fetchTodayWater = createAsyncThunk(
 // Add water intake
 export const addWaterIntake = createAsyncThunk(
   "water/addWaterIntake",
-  async (intake, { rejectWithValue }) => {
+  async ({ intake, weight }, { rejectWithValue }) => {
     try {
-      const response = await api.post("/water/add", { intake });
+      const response = await api.post("/water/add", { intake, weight });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
