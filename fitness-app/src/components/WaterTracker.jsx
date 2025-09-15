@@ -1,132 +1,102 @@
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { motion } from "framer-motion";
 import { fetchTodayWater, addWaterIntake } from "../redux/slices/waterSlice";
-import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
-import "react-circular-progressbar/dist/styles.css";
 
-const WaterTracker = () => {
+export default function WaterTracker() {
   const dispatch = useDispatch();
   const { todayIntake, goal, loading, error } = useSelector((state) => state.water);
-  const [message, setMessage] = useState("");
   const [weight, setWeight] = useState("");
 
   useEffect(() => {
     dispatch(fetchTodayWater());
   }, [dispatch]);
 
-  useEffect(() => {
-    if (goal === 0) {
-      setMessage("");
-      return;
-    }
-    const progress = todayIntake / goal;
-    if (progress === 0) {
-      setMessage("Start hydrating! 💧");
-    } else if (progress < 0.5) {
-      setMessage("Keep going! 💧 You’re halfway there!");
-    } else if (progress < 1) {
-      setMessage("Almost there! 💦 Keep it up!");
-    } else {
-      setMessage("Great job! 🎉 You reached your daily goal!");
-    }
-  }, [todayIntake, goal]);
-
   const handleAddWater = (amount) => {
-    console.log("Adding water:", amount);
-    dispatch(addWaterIntake(amount));
+    console.log("Adding water:", amount, "with weight:", weight);
+    dispatch(addWaterIntake({ intake: amount, weight: weight ? parseFloat(weight) : undefined }));
   };
 
-  const progressPercent = goal > 0 ? Math.min((todayIntake / goal) * 100, 100) : 0;
+  const progress = goal > 0 ? (todayIntake / goal) * 100 : 0;
+  const fillHeight = Math.min(progress, 100);
+
+  const getMessage = () => {
+    if (progress < 50) return "Keep going! 💧 You're halfway there!";
+    if (progress >= 100) return "Great job! 🎉 You reached your daily goal!";
+    return "Almost there! 💪";
+  };
 
   return (
-    <div className="p-4 rounded-lg shadow-sm bg-blue-50 max-w-md mx-auto w-full sm:w-auto">
-      <h3 className="text-xl font-semibold mb-4 text-center">
-        Water Tracker
-      </h3>
+    <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
+      <h2 className="text-2xl font-bold text-center mb-6">Water Tracker</h2>
 
       {/* Weight Input */}
       <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Current Weight (kg) for Goal Calculation
-        </label>
+        <label className="block text-sm font-medium mb-2">Enter your weight (kg):</label>
         <input
           type="number"
           value={weight}
           onChange={(e) => setWeight(e.target.value)}
-          placeholder="Enter weight"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+          className="w-full px-3 py-2 border rounded"
+          placeholder="e.g., 70"
         />
         {weight && (
-          <p className="text-xs text-gray-600 mt-1">
-            Suggested daily goal: {Math.round(parseFloat(weight) * 0.033 * 1000)} ml
+          <p className="text-sm text-gray-600 mt-1">
+            Suggested daily intake: {Math.round(parseFloat(weight) * 0.033 * 1000)} ml
           </p>
         )}
       </div>
 
-      {/* Progress Bar */}
-      <div className="flex justify-center mb-4">
-        <div style={{ width: 120, height: 120 }}>
-          <CircularProgressbar
-            value={progressPercent}
-            text={`${(todayIntake / 1000).toFixed(2)}L`}
-            styles={buildStyles({
-              textColor: "#3b82f6",
-              pathColor: "#3b82f6",
-              trailColor: "#d1d5db",
-              textSize: "12px",
-            })}
+      {/* Water Glass Animation */}
+      <div className="flex justify-center mb-6">
+        <div className="relative w-32 h-48 bg-blue-100 border-4 border-blue-300 rounded-b-lg overflow-hidden">
+          <motion.div
+            className="absolute bottom-0 w-full bg-blue-400"
+            initial={{ height: 0 }}
+            animate={{ height: `${fillHeight}%` }}
+            transition={{ duration: 0.5 }}
           />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-2xl">💧</span>
+          </div>
         </div>
       </div>
 
-      {/* Animated Water Glass */}
-      <div className="flex justify-center mb-4">
-        <div
-          className={`w-16 h-24 bg-blue-200 rounded-b-full border-2 border-blue-400 relative overflow-hidden transition-transform duration-300 ${
-            progressPercent >= 100 ? 'scale-110' : 'scale-100'
-          }`}
-        >
-          <div
-            className="absolute bottom-0 w-full bg-blue-500 transition-all duration-500"
-            style={{ height: `${Math.min(progressPercent, 100)}%` }}
+      {/* Progress Bar */}
+      <div className="mb-4">
+        <div className="w-full bg-gray-200 rounded-full h-4">
+          <motion.div
+            className="bg-blue-500 h-4 rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${Math.min(progress, 100)}%` }}
+            transition={{ duration: 0.5 }}
           />
         </div>
+        <p className="text-center mt-2 text-sm">
+          {todayIntake} ml / {goal} ml ({Math.round(progress)}%)
+        </p>
       </div>
 
       {/* Buttons */}
-      <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mb-4">
+      <div className="flex justify-center space-x-4 mb-4">
         <button
           onClick={() => handleAddWater(200)}
-          className="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 active:scale-95 transition-all duration-150 text-sm w-full sm:w-auto disabled:opacity-50"
-          disabled={loading}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           +200ml
         </button>
         <button
           onClick={() => handleAddWater(250)}
-          className="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 active:scale-95 transition-all duration-150 text-sm w-full sm:w-auto disabled:opacity-50"
-          disabled={loading}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
-          +1 Glass (250ml)
+          +1 Glass
         </button>
       </div>
 
       {/* Message */}
-      {message && (
-        <p
-          className="text-center text-blue-700 font-medium text-sm animate-fade-in"
-        >
-          {message}
-        </p>
-      )}
+      <p className="text-center text-lg font-medium">{getMessage()}</p>
 
-      {error && (
-        <p className="text-center text-red-500 text-sm mt-2">
-          Error: {error}
-        </p>
-      )}
+      {error && <p className="text-red-500 text-center mt-4">{error}</p>}
     </div>
   );
-};
-
-export default WaterTracker;
+}
