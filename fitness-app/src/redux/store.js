@@ -3,12 +3,14 @@ import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../features/authSlice";
 import foodReducer from "../features/foodSlice";
 import workoutReducer from "./slices/workoutSlice";
+import waterReducer from "./slices/waterSlice";
 
 const store = configureStore({
   reducer: {
     auth: authReducer,
     food: foodReducer,
     workouts: workoutReducer,
+    water: waterReducer,
   },
 });
 

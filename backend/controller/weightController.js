@@ -28,3 +28,13 @@ export const getWeightLogs = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+// Get latest weight
+export const getLatestWeight = async (req, res) => {
+  try {
+    const log = await WeightLog.findOne({ user: req.user.id }).sort({ date: -1 });
+    res.json(log ? { weight: log.weight } : { weight: null });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

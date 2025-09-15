@@ -9,6 +9,7 @@ import Suggestions from "./pages/Suggestion";
 import WorkoutTracker from "./pages/WorkoutTracker";
 import AITrainer from "./pages/AITrainer";
 import Home from "./pages/Home";
+import WaterTrackerPage from "./pages/WaterTrackerPage";
 import "./index.css";
 
 function ProtectedRoute({ children }) {
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/suggestions" element={<ProtectedRoute><Suggestions /></ProtectedRoute>} />
         <Route path="/workouts" element={<ProtectedRoute><WorkoutTracker /></ProtectedRoute>} />
         <Route path="/ai-trainer" element={<ProtectedRoute><AITrainer /></ProtectedRoute>} />
+        <Route path="/water-tracker" element={<ProtectedRoute><WaterTrackerPage /></ProtectedRoute>} />
       </Routes>
     </Router>
   );

@@ -1,5 +1,11 @@
-- [x] Fix incorrect calorie and protein calculation for countable items like eggs
-  - [x] Updated parseFoodQuery to identify countable vs weight-based quantities
-  - [x] Modified multiplier calculation in logFoodByText to use correct scaling
-  - [x] For countable items (eggs, apples): multiplier = quantity
-  - [x] For weight-based items: multiplier = quantity / 100
+- [x] Backend: Create WaterLog model (backend/models/WaterLog.js)
+- [x] Backend: Create waterController.js (backend/controller/waterController.js)
+- [x] Backend: Create waterRoutes.js (backend/routes/waterRoutes.js)
+- [x] Backend: Edit index.js to add water routes
+- [x] Backend: Edit weightController.js to add getLatestWeight function
+- [x] Frontend: Create waterSlice.js (fitness-app/src/redux/slices/waterSlice.js)
+- [x] Frontend: Edit store.js to add water reducer
+- [x] Frontend: Create WaterTracker.jsx component (fitness-app/src/components/WaterTracker.jsx)
+- [x] Frontend: Edit Dashboard.jsx to add WaterTracker component
+- [x] Check and install Framer Motion if needed
+- [ ] Test the feature

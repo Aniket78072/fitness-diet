@@ -46,6 +46,9 @@ export default function Navbar() {
             <Link to="/workouts" className="hover:text-orange-500 transition">Workout Tracker</Link>
           </li>
           <li>
+            <Link to="/water-tracker" className="hover:text-orange-500 transition">Water Tracker</Link>
+          </li>
+          <li>
             <Link to="/ai-trainer" className="hover:text-orange-500 transition">AI Trainer</Link>
           </li>
         </ul>
@@ -93,6 +96,9 @@ export default function Navbar() {
               </li>
               <li>
                 <Link to="/workouts" className="block py-2 hover:text-orange-500 transition" onClick={() => setIsMenuOpen(false)}>Workout Tracker</Link>
+              </li>
+              <li>
+                <Link to="/water-tracker" className="block py-2 hover:text-orange-500 transition" onClick={() => setIsMenuOpen(false)}>Water Tracker</Link>
               </li>
               <li>
                 <Link to="/ai-trainer" className="block py-2 hover:text-orange-500 transition" onClick={() => setIsMenuOpen(false)}>AI Trainer</Link>

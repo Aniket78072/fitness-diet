@@ -1,0 +1,77 @@
+import WaterLog from "../models/WaterLog.js";
+import WeightLog from "../models/WeightLog.js";
+
+// Helper to get today's date at midnight
+const getTodayDate = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+};
+
+// POST /api/water/add
+export const addWaterIntake = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { intake } = req.body; // intake in ml
+    if (!intake || intake <= 0) {
+      return res.status(400).json({ error: "Intake must be a positive number" });
+    }
+
+    const today = getTodayDate();
+
+    // Find existing water log for today
+    let waterLog = await WaterLog.findOne({ userId, date: today });
+
+    // If no log, get latest weight to calculate goal
+    if (!waterLog) {
+      const latestWeightLog = await WeightLog.findOne({ user: userId }).sort({ date: -1 });
+      const weightKg = latestWeightLog ? latestWeightLog.weight : 70; // default 70kg if none
+      const goal = Math.round(weightKg * 33); // ml
+
+      waterLog = new WaterLog({
+        userId,
+        date: today,
+        intake,
+        goal,
+      });
+    } else {
+      waterLog.intake += intake;
+    }
+
+    await waterLog.save();
+
+    res.json(waterLog);
+  } catch (err) {
+    console.error("Error in addWaterIntake:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// GET /api/water/today
+export const getTodayWater = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const today = getTodayDate();
+
+    let waterLog = await WaterLog.findOne({ userId, date: today });
+
+    if (!waterLog) {
+      const latestWeightLog = await WeightLog.findOne({ user: userId }).sort({ date: -1 });
+      const weightKg = latestWeightLog ? latestWeightLog.weight : 70; // default 70kg if none
+      const goal = Math.round(weightKg * 33); // ml
+
+      waterLog = {
+        intake: 0,
+        goal,
+      };
+    }
+
+    res.json({
+      intake: waterLog.intake,
+      goal: waterLog.goal,
+    });
+  } catch (err) {
+    console.error("Error in getTodayWater:", err);
+    res.status(500).json({ error: err.message });
+  }
+};

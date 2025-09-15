@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import "react-circular-progressbar/dist/styles.css";
 import Message from "../components/Message";
+import WaterTracker from "../components/WaterTracker";
 
 export default function Dashboard() {
   const [calorieGoal, setCalorieGoal] = useState(0);
@@ -315,6 +316,9 @@ const fetchWorkouts = async () => {
           </button>
         </div>
       </div>
+
+      {/* Water Tracker */}
+      <WaterTracker />
 
       {/* Profile Setup */}
       <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg shadow-sm">

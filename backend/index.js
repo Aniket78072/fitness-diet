@@ -6,6 +6,7 @@ import userRoutes from "./routes/userRoutes.js";
 import cors from "cors";
 import aiRoutes from "./routes/aiRoutes.js";
 import weightRoutes from "./routes/weightRoutes.js";
+import waterRoutes from "./routes/waterRoutes.js";
 import workoutRoutes from "./routes/workoutRoutes.js";
 
 
@@ -44,6 +45,7 @@ app.use((req, res, next) => {
 app.use("/api/ai", aiRoutes);
 app.use("/api/workouts", workoutRoutes);
 app.use("/api/weight", weightRoutes);
+app.use("/api/water", waterRoutes);
 
 app.use("/api/food", foodRoutes);
 app.use("/api/users", userRoutes);
