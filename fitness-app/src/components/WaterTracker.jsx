@@ -26,6 +26,26 @@ export default function WaterTracker() {
     return "Almost there! 💪";
   };
 
+  // Show message only briefly after adding water
+  const [showMessage, setShowMessage] = useState(false);
+  const [messageText, setMessageText] = useState("");
+
+  useEffect(() => {
+    if (error) {
+      setMessageText(`Error: ${error}`);
+      setShowMessage(true);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (!loading && !error) {
+      setMessageText(getMessage());
+      setShowMessage(true);
+      const timer = setTimeout(() => setShowMessage(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [todayIntake, goal, loading, error]);
+
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold text-center mb-6">Water Tracker</h2>
