@@ -14,12 +14,12 @@ export const addWaterIntake = async (req, res) => {
     const userId = req.user.id;
     const { intake, weight } = req.body; // intake in ml, weight in kg (optional)
 
-    if (!intake || intake <= 0) {
+    if (!intake || typeof intake !== 'number' || intake <= 0) {
       return res.status(400).json({ error: "Intake must be a positive number" });
     }
 
     // If weight provided, update weight log
-    if (weight && weight > 0) {
+    if (weight && typeof weight === 'number' && weight > 0) {
       // Reuse existing addWeightLog logic
       const WeightLog = (await import("../models/WeightLog.js")).default;
       const existingWeightLog = await WeightLog.findOne({ user: userId, date: { $gte: new Date(new Date().setHours(0,0,0,0)) } });
