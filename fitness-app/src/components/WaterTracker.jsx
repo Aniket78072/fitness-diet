@@ -21,14 +21,20 @@ export default function WaterTracker() {
   const fillHeight = Math.min(progress, 100);
 
   const getMessage = () => {
+    if (weight) {
+      return `Based on your weight, you need to drink ${goal} ml. You have drunk ${todayIntake} ml so far.`;
+    }
     if (progress < 50) return "Keep going! 💧 You're halfway there!";
     if (progress >= 100) return "Great job! 🎉 You reached your daily goal!";
     return "Almost there! 💪";
   };
 
-  // Show message only briefly after adding water
+  // Show message only briefly after adding water or on error
   const [showMessage, setShowMessage] = useState(false);
   const [messageText, setMessageText] = useState("");
+
+  // Calculate remaining water to drink
+  const remainingWater = Math.max(goal - todayIntake, 0);
 
   useEffect(() => {
     if (error) {
@@ -41,10 +47,10 @@ export default function WaterTracker() {
     if (!loading && !error) {
       setMessageText(getMessage());
       setShowMessage(true);
-      const timer = setTimeout(() => setShowMessage(false), 3000);
+      const timer = setTimeout(() => setShowMessage(false), 5000);
       return () => clearTimeout(timer);
     }
-  }, [todayIntake, goal, loading, error]);
+  }, [todayIntake, goal, loading, error, weight]);
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
@@ -114,7 +120,7 @@ export default function WaterTracker() {
       </div>
 
       {/* Message */}
-      <p className="text-center text-lg text-black font-medium">{getMessage()}</p>
+      {showMessage && <p className="text-center text-lg text-black font-medium">{messageText}</p>}
 
       {error && <p className="text-red-500 text-center mt-4">{error}</p>}
     </div>
