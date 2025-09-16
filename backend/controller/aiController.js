@@ -89,7 +89,7 @@ export const calculateCaloriesBurned = async (req, res) => {
       return res.status(400).json({ error: "Exercise and positive reps are required" });
     }
 
-    const prompt = `Calculate the estimated calories burned for doing ${reps} repetitions of ${exercise}. Provide only the number in kcal.`;
+    const prompt = `Calculate the estimated calories burned for doing ${reps} repetitions of ${exercise} . Provide only the number in cal.`;
 
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
